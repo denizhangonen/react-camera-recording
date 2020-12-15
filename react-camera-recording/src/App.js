@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   AppBar,
@@ -9,6 +9,10 @@ import {
   Badge,
   MenuItem,
   Menu,
+  Box,
+  Grid,
+  Paper,
+  Button,
 } from '@material-ui/core/';
 
 import { fade, makeStyles, createStyles } from '@material-ui/core/styles';
@@ -19,6 +23,8 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import CameraIcon from '@material-ui/icons/Camera';
+
+import Webcam from 'react-webcam';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -83,13 +89,30 @@ const useStyles = makeStyles((theme) =>
         display: 'none',
       },
     },
+    mainArea: {
+      flexGrow: 1,
+      padding: theme.spacing(2),
+      height: '80vh',
+    },
+    container: {
+      height: '100%',
+    },
+    gridContainer: { height: '100%' },
+    paper: {
+      padding: theme.spacing(2),
+      textAlign: 'center',
+      color: theme.palette.text.secondary,
+      height: '100%',
+    },
   })
 );
 
 function App() {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+  const [camComponent, setCamComponent] = useState(null);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -170,6 +193,19 @@ function App() {
 
   const cameraClickHandler = () => {
     console.log('Let s turn the camera on ');
+    setCamComponent(<Webcam />);
+  };
+
+  const startCapturingHandler = () => {
+    console.log('startCapturingHandler');
+    setIsCapturing(true);
+    setCamComponent(<Webcam />);
+  };
+
+  const stopCapturingHandler = () => {
+    console.log('stopCapturingHandler');
+    setIsCapturing(false);
+    setCamComponent(null);
   };
 
   return (
@@ -252,6 +288,37 @@ function App() {
         {renderMobileMenu}
         {renderMenu}
       </div>
+      <Box className={classes.mainArea}>
+        <Grid container spacing={3} className={classes.container}>
+          <Grid item xs={3} className={classes.gridContainer}>
+            <Paper className={classes.paper}>
+              {isCapturing ? (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={stopCapturingHandler}
+                >
+                  Stop Capturing
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={startCapturingHandler}
+                >
+                  Start Capturing
+                </Button>
+              )}
+            </Paper>
+          </Grid>
+
+          <Grid item xs={9} className={classes.gridContainer}>
+            <Paper className={classes.paper}>
+              <Box>{isCapturing && camComponent}</Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
     </div>
   );
 }
